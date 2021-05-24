@@ -2,16 +2,14 @@ class TmbdService {
 	async getResource(url) {
 		const response = await fetch(url);
 		if (!response.ok) {
-			throw new Error(`Could not fetch ${url}` +
-				`, received ${response.status}`);
+			throw new Error(response.status);
 		}
 		return await response.json();
 	}
 
-	getMovies() {
+	getMovies(movie, page) {
 		const api_key = 'd619adfb47ad0346fcb305088c087ffc';
-		const movie = 'return';
-		return this.getResource(`https://api.themoviedb.org/3/search/movie?api_key=${api_key}&query=${movie}`)
+		return this.getResource(`https://api.themoviedb.org/3/search/movie?api_key=${api_key}&query=${movie}&page=${page}`)
 	}
 }
 

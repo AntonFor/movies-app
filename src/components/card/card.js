@@ -26,7 +26,7 @@ export default class CardItem extends Component {
 		let dt = new Date(dateItem).getDate();
 		let resultDate = format(new Date(yr, mn, dt), "MMMM d, yyyy");
 
-		return (
+		return (			
 			<Card
 				title={
 					<Image

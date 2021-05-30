@@ -23,20 +23,22 @@ export default class App extends Component {
 			unprocessableEntity: false,
 			searchMovieName: '',
 			totalPages: 1,
-			currentPage: 1
+			currentPage: 1,
+			totalResults: null
 		};
 	}
 
 	updateMovies() {
 		tmbdService.getMovies(this.state.searchMovieName, this.state.currentPage)
 			.then((body) => {
-				this.setState((moviesData, loading, error, unprocessableEntity, totalPages) => {
+				this.setState((moviesData, loading, error, unprocessableEntity, totalPages, totalResults) => {
 					return {
 						moviesData: body.results,
 						loading: false,
 						error: false,
 						unprocessableEntity: false,
-						totalPages: body.total_pages
+						totalPages: body.total_pages,
+						totalResults: body.total_results
 					}
 				})
 			}).catch(this.onError);
@@ -70,20 +72,22 @@ export default class App extends Component {
 
 	updateMoviesDebounced = debounce(this.updateMovies, 2000);
 
-	onChangePage = (page, pageSize) => {
-		tmbdService.getMovies(this.state.searchMovieName, page)
-			.then((body) => {
-				this.setState((moviesData, loading, error, unprocessableEntity, totalPages, currentPage) => {
-					return {
-						moviesData: body.results,
-						//loading: false,
-						//error: false,
-						//unprocessableEntity: false,
-						//totalPages: body.total_pages,
-						currentPage: page
-					}
-				})
-			}).catch(this.onError);
+	onChangePage = (page) => {
+		this.setState(({ currentPage }) => {
+			return {
+				currentPage: page
+			}
+		})
+		
+		//tmbdService.getMovies(this.state.searchMovieName, page)
+		//	.then((body) => {
+		//		this.setState((moviesData, currentPage) => {
+		//			return {
+		//				moviesData: body.results,
+		//				currentPage: page
+		//			}
+		//		})
+		//	}).catch(this.onError);
 	}
 	
 	componentDidMount() {
@@ -93,7 +97,13 @@ export default class App extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		if (this.state.searchMovieName !== prevState.searchMovieName) {
 			this.updateMoviesDebounced();
-		}
+		} else if (this.state.currentPage !== prevState.currentPage) {
+			this.updateMovies();
+		} else return;
+	}
+
+	componentWillUnmount() {
+		
 	}
 
 	render() {
@@ -115,12 +125,14 @@ export default class App extends Component {
 				{unprocessableEntityMessage}
 				{nothingFoundMessage}
 				{spaceCards}
-				<Pagination size="small"
-					total={this.state.totalPages}
-					PageSize={20}
-					//current={this.state.currentPage}
+				<Pagination
+					size="small"
+					total={this.state.totalResults}
+					current={this.state.currentPage}
+					pageSize={20}
 					hideOnSinglePage={true}
 					onChange={this.onChangePage}
+					showSizeChanger={false}
 				/>
 			</div>
 		);

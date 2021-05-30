@@ -1,4 +1,9 @@
+//import AbortController from "abort-controller"
+
 class TmbdService {
+	//controller = new AbortController();
+	//signal = this.controller.signal;
+
 	async getResource(url) {
 		const response = await fetch(url);
 		if (!response.ok) {

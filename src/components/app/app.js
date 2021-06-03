@@ -21,6 +21,7 @@ export default class App extends Component {
 			loading: true,
 			error: false,
 			unprocessableEntity: false,
+			disconnected: false,
 			searchMovieName: '',
 			totalPages: 1,
 			currentPage: 1,
@@ -37,6 +38,7 @@ export default class App extends Component {
 						loading: false,
 						error: false,
 						unprocessableEntity: false,
+						disconnected: false,
 						totalPages: body.total_pages,
 						totalResults: body.total_results
 					}
@@ -45,10 +47,18 @@ export default class App extends Component {
 	}
 
 	onError = (err) => {
+		console.log(err);
 		if (err.message === '422') {
-			this.setState((unprocessableEntity, loading, error) => {
+			this.setState((unprocessableEntity, loading) => {
 				return {
 					unprocessableEntity: true,
+					loading: false
+				}
+			})
+		} else if (err.message === 'Failed to fetch') {
+			this.setState((disconnected, loading) => {
+				return {
+					disconnected: true,
 					loading: false
 				}
 			})
@@ -94,14 +104,15 @@ export default class App extends Component {
 	}
 
 	render() {
-		const { error, unprocessableEntity, moviesData } = this.state;
-		const spaceCards = !error && !unprocessableEntity ? <SpaceCards movies={this.state} /> : null;
-		const errMessage = error ? <AlertErr /> : null;
+		const { error, unprocessableEntity, disconnected, moviesData } = this.state;
+		const spaceCards = !error && !unprocessableEntity && !disconnected ? <SpaceCards movies={this.state} /> : null;
+		const errMessage = error ? <AlertErr message='Server is not available' /> : null;
+		const errDisconnected = disconnected ? <AlertErr message='Internet disconnected' /> : null;
 		const unprocessableEntityMessage = unprocessableEntity ? 
 			<Alert message="Enter the title of the movie in the search box" type="info" showIcon /> : null;
 		const nothingFoundMessage = moviesData.length === 0  && !unprocessableEntity ? 
 			<Alert message="Movie not found" type="info" showIcon /> : null;
-		const pagination = unprocessableEntity ? null : <Pagin propsState={this.state} change={this.onChangePage} />;
+		const pagination = error || unprocessableEntity || disconnected ? null : <Pagin propsState={this.state} change={this.onChangePage} />;
 
 		return (
 			<div>
@@ -110,6 +121,7 @@ export default class App extends Component {
 					inputValue={this.state.searchMovieName}
 				/>
 				{errMessage}
+				{errDisconnected}
 				{unprocessableEntityMessage}
 				{nothingFoundMessage}
 				{spaceCards}

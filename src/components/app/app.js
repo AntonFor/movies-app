@@ -65,7 +65,8 @@ export default class App extends Component {
 	addNewMovies = (name) => {
 		this.setState((searchMovieName) => {
 			return {
-				searchMovieName: name
+				searchMovieName: name,
+				currentPage: 1
 			}
 		})
 	}
@@ -78,16 +79,6 @@ export default class App extends Component {
 				currentPage: page
 			}
 		})
-		
-		//tmbdService.getMovies(this.state.searchMovieName, page)
-		//	.then((body) => {
-		//		this.setState((moviesData, currentPage) => {
-		//			return {
-		//				moviesData: body.results,
-		//				currentPage: page
-		//			}
-		//		})
-		//	}).catch(this.onError);
 	}
 	
 	componentDidMount() {
@@ -102,18 +93,15 @@ export default class App extends Component {
 		} else return;
 	}
 
-	componentWillUnmount() {
-		
-	}
-
 	render() {
-		const { error, unprocessableEntity } = this.state;
+		const { error, unprocessableEntity, moviesData } = this.state;
 		const spaceCards = !error && !unprocessableEntity ? <SpaceCards movies={this.state} /> : null;
 		const errMessage = error ? <AlertErr /> : null;
 		const unprocessableEntityMessage = unprocessableEntity ? 
 			<Alert message="Enter the title of the movie in the search box" type="info" showIcon /> : null;
-		const nothingFoundMessage = this.state.moviesData.length === 0  && !unprocessableEntity ? 
+		const nothingFoundMessage = moviesData.length === 0  && !unprocessableEntity ? 
 			<Alert message="Movie not found" type="info" showIcon /> : null;
+		const pagination = unprocessableEntity ? null : <Pagin propsState={this.state} change={this.onChangePage} />;
 
 		return (
 			<div>
@@ -125,16 +113,24 @@ export default class App extends Component {
 				{unprocessableEntityMessage}
 				{nothingFoundMessage}
 				{spaceCards}
-				<Pagination
-					size="small"
-					total={this.state.totalResults}
-					current={this.state.currentPage}
-					pageSize={20}
-					hideOnSinglePage={true}
-					onChange={this.onChangePage}
-					showSizeChanger={false}
-				/>
+				{pagination}
 			</div>
 		);
 	}
+}
+
+const Pagin = (props) => {
+	const { propsState, change } = props;
+	const { totalResults, currentPage } = propsState;
+	return (
+		<Pagination
+			size="small"
+			total={totalResults}
+			current={currentPage}
+			pageSize={20}
+			hideOnSinglePage={true}
+			onChange={change}
+			showSizeChanger={false}
+		/>
+	)
 }

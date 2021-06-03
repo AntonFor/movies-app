@@ -20,11 +20,15 @@ export default class CardItem extends Component {
 	
 	render() {
 		const { titleItem, dateItem, genreItem1, genreItem2, overviewItem, urlItem } = this.props;
-
-		let yr = new Date(dateItem).getFullYear();
-		let mn = (new Date(dateItem).getMonth()) + 1;
-		let dt = new Date(dateItem).getDate();
-		let resultDate = format(new Date(yr, mn, dt), "MMMM d, yyyy");
+		
+		let resultDate;
+		if (dateItem === '' || dateItem === undefined) resultDate = '';
+		else {
+			let yr = new Date(dateItem).getFullYear();
+			let mn = (new Date(dateItem).getMonth());
+			let dt = new Date(dateItem).getDate();
+			resultDate = format(new Date(yr, mn, dt), "MMMM d, yyyy");
+		}
 
 		return (			
 			<Card

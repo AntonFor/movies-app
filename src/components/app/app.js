@@ -25,14 +25,15 @@ export default class App extends Component {
 			searchMovieName: '',
 			totalPages: 1,
 			currentPage: 1,
-			totalResults: null
+			totalResults: null,
+			sessionId: null
 		};
 	}
 
 	updateMovies() {
 		tmbdService.getMovies(this.state.searchMovieName, this.state.currentPage)
 			.then((body) => {
-				this.setState((moviesData, loading, error, unprocessableEntity, totalPages, totalResults) => {
+				this.setState(({ moviesData, loading, error, unprocessableEntity, disconnected, totalPages, totalResults }) => {
 					return {
 						moviesData: body.results,
 						loading: false,
@@ -40,30 +41,57 @@ export default class App extends Component {
 						unprocessableEntity: false,
 						disconnected: false,
 						totalPages: body.total_pages,
-						totalResults: body.total_results
+						totalResults: body.total_results, 
+					}
+				})
+			}).catch(this.onError);
+	}
+
+	updateSessionId() {
+		tmbdService.getSessionId()
+			.then(body => {
+				this.setState(({ sessionId }) => {
+					return {
+						sessionId: body.guest_session_id
+					}
+				})
+			}).catch(this.onError);
+	}
+
+	updateRateMovies() {
+		tmbdService.getRateMovies(this.state.sessionId)
+			.then((body) => {
+				this.setState(({ moviesData, loading, error, unprocessableEntity, disconnected, totalPages, totalResults }) => {
+					return {
+						moviesData: body.results,
+						loading: false,
+						error: false,
+						unprocessableEntity: false,
+						disconnected: false,
+						totalPages: body.total_pages,
+						totalResults: body.total_results, 
 					}
 				})
 			}).catch(this.onError);
 	}
 
 	onError = (err) => {
-		console.log(err);
 		if (err.message === '422') {
-			this.setState((unprocessableEntity, loading) => {
+			this.setState(({ unprocessableEntity, loading }) => {
 				return {
 					unprocessableEntity: true,
 					loading: false
 				}
 			})
 		} else if (err.message === 'Failed to fetch') {
-			this.setState((disconnected, loading) => {
+			this.setState(({ disconnected, loading }) => {
 				return {
 					disconnected: true,
 					loading: false
 				}
 			})
 		} else {
-			this.setState((error, loading) => {
+			this.setState(({ error, loading }) => {
 				return {
 					error: true,
 					loading: false
@@ -73,7 +101,7 @@ export default class App extends Component {
 	}
 
 	addNewMovies = (name) => {
-		this.setState((searchMovieName) => {
+		this.setState(({ searchMovieName, currentPage }) => {
 			return {
 				searchMovieName: name,
 				currentPage: 1
@@ -90,8 +118,25 @@ export default class App extends Component {
 			}
 		})
 	}
+
+	getRateMovies() {
+		const obj = localStorage.getItem('rate');
+		let objPars = JSON.parse(obj);
+		objPars = objPars === null ? {} : objPars;
+		const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
+		const getRate = new Map(arrPars);
+		for (let [ id, value ] of getRate) {
+			tmbdService.setRateMovie(id, value, this.state.sessionId);
+		}
+	}
+
+	rated = () => {
+		this.getRateMovies();
+		this.updateRateMovies();
+	}
 	
 	componentDidMount() {
+		this.updateSessionId();
 		this.updateMovies();
 	}
 
@@ -116,6 +161,7 @@ export default class App extends Component {
 
 		return (
 			<div>
+				<button onClick={this.rated}>Rated</button>
 				<SearchPanel
 					changeNewMovies={this.addNewMovies}
 					inputValue={this.state.searchMovieName}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Card, Image } from 'antd';
+import { Card, Image, Rate } from 'antd';
 import 'antd/dist/antd.css';
 
 import { format } from 'date-fns';
@@ -10,6 +10,9 @@ import './card.css';
 export default class CardItem extends Component {
 	constructor() {
 		super();
+		this.state = {
+			
+		}
 
 		this.truncate = (str, n) => {
 			if (str.length <= n) return str;
@@ -19,7 +22,7 @@ export default class CardItem extends Component {
 	}
 	
 	render() {
-		const { titleItem, dateItem, genreItem1, genreItem2, overviewItem, urlItem } = this.props;
+		const { titleItem, dateItem, genreItem1, genreItem2, overviewItem, urlItem, onChangeValueItem, valueItem } = this.props;
 		
 		let resultDate;
 		if (dateItem === '' || dateItem === undefined) resultDate = '';
@@ -28,6 +31,10 @@ export default class CardItem extends Component {
 			let mn = (new Date(dateItem).getMonth());
 			let dt = new Date(dateItem).getDate();
 			resultDate = format(new Date(yr, mn, dt), "MMMM d, yyyy");
+		}
+
+		const rateStyle = {
+			fontSize: '14.8px'
 		}
 
 		return (			
@@ -47,6 +54,12 @@ export default class CardItem extends Component {
 					<div className="card__genre-item">{genreItem2}</div>
 				</div>
 				<p>{this.truncate(overviewItem, 180)}</p>
+				<Rate allowHalf
+					count={10}
+					value={valueItem}
+					style={rateStyle}
+					onChange={onChangeValueItem}
+				/>
 			</Card>
 		)
 	}

@@ -29,6 +29,10 @@ class TmbdService {
 	getRateMovies(session) {
 		return this.getResource(`https://api.themoviedb.org/3/guest_session/${session}/rated/movies?api_key=${this.api_key}`);
 	}
+
+	getGenresMovies() {
+		return this.getResource(`https://api.themoviedb.org/3/genre/movie/list?api_key=${this.api_key}`);
+	}
 }
 
 export const tmbdService = new TmbdService();

@@ -3,15 +3,17 @@ import React, { Component } from 'react';
 import SearchPanel from '../search-panel';
 import SpaceCards from '../space-cards';
 import AlertErr from '../alert-err';
+import { GenresMoviesProvider } from '../genres-movies-context';
 
-import { Alert } from 'antd';
-import { Pagination } from 'antd';
+import { Alert, Pagination, Tabs } from 'antd';
 
 import {tmbdService} from '../../services/tmbd-service';
 
 import './app.css';
 
 var debounce = require('lodash.debounce');
+
+const { TabPane } = Tabs;
 
 export default class App extends Component {
 	constructor() {
@@ -26,7 +28,9 @@ export default class App extends Component {
 			totalPages: 1,
 			currentPage: 1,
 			totalResults: null,
-			sessionId: null
+			sessionId: null,
+			activeKey: '1',
+			genresData: null
 		};
 	}
 
@@ -73,6 +77,17 @@ export default class App extends Component {
 					}
 				})
 			}).catch(this.onError);
+	}
+
+	updateGenresMovies() {
+		tmbdService.getGenresMovies()
+			.then((body) => {
+				this.setState(( {genresData} ) => {
+					return {
+						genresData: body.genres
+					}
+				})
+			})
 	}
 
 	onError = (err) => {
@@ -129,13 +144,23 @@ export default class App extends Component {
 			tmbdService.setRateMovie(id, value, this.state.sessionId);
 		}
 	}
-
-	rated = () => {
-		this.getRateMovies();
-		this.updateRateMovies();
-	}
 	
+	selectionTab = (currentKey) => {
+		this.setState(({ activeKey }) => {
+			if (currentKey === '1') {
+				this.updateMovies();
+			} else if (currentKey === '2') {
+				this.getRateMovies();
+				this.updateRateMovies();
+			}
+			return {
+				activeKey: currentKey
+			}
+		})
+	}
+
 	componentDidMount() {
+		this.updateGenresMovies()
 		this.updateSessionId();
 		this.updateMovies();
 	}
@@ -159,19 +184,38 @@ export default class App extends Component {
 			<Alert message="Movie not found" type="info" showIcon /> : null;
 		const pagination = error || unprocessableEntity || disconnected ? null : <Pagin propsState={this.state} change={this.onChangePage} />;
 
+		const tabsStyle = {
+			width: '110px',
+			margin: 'auto'
+		}
+		
 		return (
 			<div>
-				<button onClick={this.rated}>Rated</button>
-				<SearchPanel
-					changeNewMovies={this.addNewMovies}
-					inputValue={this.state.searchMovieName}
-				/>
-				{errMessage}
-				{errDisconnected}
-				{unprocessableEntityMessage}
-				{nothingFoundMessage}
-				{spaceCards}
-				{pagination}
+				<GenresMoviesProvider value={this.state.genresData}>
+					<Tabs activeKey={this.state.activeKey}
+						centered
+						onChange={this.selectionTab}
+						tabBarStyle={tabsStyle}>
+						<TabPane tab="Search" key="1">
+							<SearchPanel
+								changeNewMovies={this.addNewMovies}
+								inputValue={this.state.searchMovieName}
+							/>
+							{errMessage}
+							{errDisconnected}
+							{unprocessableEntityMessage}
+							{nothingFoundMessage}
+							{spaceCards}
+							{pagination}
+						</TabPane>
+						<TabPane tab="Rated" key="2">
+							{errMessage}
+							{errDisconnected}
+							{spaceCards}
+							{pagination}
+						</TabPane>
+					</Tabs>
+				</GenresMoviesProvider>
 			</div>
 		);
 	}

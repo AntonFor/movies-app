@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import CardItem from '../card';
 import Spinner from '../spinner';
+import { GenresMoviesConsumer } from '../genres-movies-context';
 
 import { Space } from 'antd';
 import 'antd/dist/antd.css';
@@ -43,11 +44,10 @@ export default class SpaceCards extends Component {
 		})
 	}
 
-	updateStateRateMovies(id, sessionId) {
-		const { rateMovies } = this.state;
-		if (rateMovies.has(id)) {
-			tmbdService.setRateMovie(id, rateMovies.get(id), sessionId);
-		} else return;
+	getGenre(genresData, genre) {
+		return genre.map(genre => {
+			return genresData.find(item => item.id === genre).name;
+		});
 	}
 
 	componentDidMount() {
@@ -60,37 +60,44 @@ export default class SpaceCards extends Component {
 		const arrayLength = loading ? 20 : moviesData.length;
 
 		return (
-			<Space size={'large'}
-				wrap={true}
-				className="space">
-				{new Array(arrayLength).fill(null).map((_, index) => {
-					if (loading) {
+			<GenresMoviesConsumer>
+				{
+					(genresData) => {
 						return (
-							<Spinner key={index} />
+							<Space size={'large'}
+								wrap={true}
+								className="space">
+								{new Array(arrayLength).fill(null).map((_, index) => {
+									if (loading) {
+										return (
+											<Spinner key={index} />
+										)
+									}
+									const { id = index, poster_path, title, release_date, genre_ids, overview, vote_average } = moviesData[index];
+									const url = `https://image.tmdb.org/t/p/w300/${poster_path}`;
+									const onChangeValue = (value) => {
+										tmbdService.setRateMovie(id, value, sessionId);
+										this.setStateRateMovies(id, value);
+									}
+									return (
+										<CardItem
+											key={id}
+											titleItem={title}
+											dateItem={release_date}
+											genreItem={this.getGenre(genresData, genre_ids)}
+											overviewItem={overview}
+											voteItem={vote_average}
+											urlItem={url}
+											valueItem={this.state.rateMovies.get(id)}
+											onChangeValueItem={onChangeValue}
+										/>
+									)
+								})}
+							</Space>
 						)
 					}
-					const { id = index, poster_path, title, release_date, genre1 = 'Action', genre2 = 'Drama', overview } = moviesData[index];
-					const url = `https://image.tmdb.org/t/p/w300/${poster_path}`;
-					const onChangeValue = (value) => {
-						tmbdService.setRateMovie(id, value, sessionId);
-						this.setStateRateMovies(id, value);
-					}
-					this.updateStateRateMovies(id, sessionId);
-					return (
-						<CardItem
-							key={id}
-							titleItem={title}
-							dateItem={release_date}
-							genreItem1={genre1}
-							genreItem2={genre2}
-							overviewItem={overview}
-							urlItem={url}
-							valueItem={this.state.rateMovies.get(id)}
-							onChangeValueItem={onChangeValue}
-						/>
-					)
-				})}
-			</Space>
+				}
+			</GenresMoviesConsumer>
 		);
 	}
 }

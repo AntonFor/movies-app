@@ -33,13 +33,25 @@ export default class SpaceCards extends Component {
 
 	setRate() {
 		this.setState(({ rateMovies }) => {
-			const obj = localStorage.getItem('rate');
-			let objPars = JSON.parse(obj);
-			objPars = objPars === null ? {} : objPars;
-			const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
-			const getRate = new Map(arrPars);
-			return {
-				rateMovies: getRate
+			let objPars;
+			try {
+				const obj = localStorage.getItem('rate');
+				objPars = JSON.parse(obj);
+			} catch(err) {
+				if (err instanceof SyntaxError) {
+					objPars = null;
+					alert("JSON syntax error: " + err.message + ". Movies data that has been rated is lost");
+				} else {
+					throw err;
+				}
+			}
+			finally {
+				objPars = objPars === null ? {} : objPars;
+				const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
+				const getRate = new Map(arrPars);
+				return {
+					rateMovies: getRate
+				}
 			}
 		})
 	}
@@ -50,6 +62,15 @@ export default class SpaceCards extends Component {
 		});
 	}
 
+	getUrlPoster(poster) {
+		return `https://image.tmdb.org/t/p/w300/${poster}`;
+	}
+
+	onChangeValue = (value, id, sessionId) => {
+		tmbdService.setRateMovie(id, value, sessionId);
+		this.setStateRateMovies(id, value);
+	}
+
 	componentDidMount() {
 		this.setRate();
 	}
@@ -57,7 +78,6 @@ export default class SpaceCards extends Component {
 	render() {
 		const { movies } = this.props;
 		const { moviesData, loading, sessionId } = movies;
-		const arrayLength = loading ? 20 : moviesData.length;
 
 		return (
 			<GenresMoviesConsumer>
@@ -67,18 +87,13 @@ export default class SpaceCards extends Component {
 							<Space size={'large'}
 								wrap={true}
 								className="space">
-								{new Array(arrayLength).fill(null).map((_, index) => {
+								{moviesData.map((_, index) => {
 									if (loading) {
 										return (
 											<Spinner key={index} />
 										)
 									}
 									const { id = index, poster_path, title, release_date, genre_ids, overview, vote_average } = moviesData[index];
-									const url = `https://image.tmdb.org/t/p/w300/${poster_path}`;
-									const onChangeValue = (value) => {
-										tmbdService.setRateMovie(id, value, sessionId);
-										this.setStateRateMovies(id, value);
-									}
 									return (
 										<CardItem
 											key={id}
@@ -87,9 +102,9 @@ export default class SpaceCards extends Component {
 											genreItem={this.getGenre(genresData, genre_ids)}
 											overviewItem={overview}
 											voteItem={vote_average}
-											urlItem={url}
+											urlItem={this.getUrlPoster(poster_path)}
 											valueItem={this.state.rateMovies.get(id)}
-											onChangeValueItem={onChangeValue}
+											onChangeValueItem={(value) => this.onChangeValue(value, id, sessionId)}
 										/>
 									)
 								})}

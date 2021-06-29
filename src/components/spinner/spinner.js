@@ -4,7 +4,7 @@ import { Spin } from 'antd';
 
 import './spinner.css';
 
-const Spinner = (props) => {
+const Spinner = () => {
 	return (
 		<div className="example">
 			<Spin size={'large'} />

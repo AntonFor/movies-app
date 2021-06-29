@@ -1,3 +1,9 @@
 .ant-pagination {
 	text-align: center;
 }
+
+.ant-tabs-nav {
+	width: 110px;
+	margin: auto;
+	margin-bottom: 0px;
+}

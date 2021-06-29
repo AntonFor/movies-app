@@ -52,3 +52,21 @@ p {
 	justify-content: space-between;
 	align-items: flex-start;
 }
+
+:root {
+	--badge-color: #fff;
+}
+
+.ant-badge-count {
+  color: #000;
+  background-color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  padding: 4px 6px;
+	box-shadow: 0 0 0 2px var(--badge-color) inset;
+}
+
+.ant-rate {
+	font-size: 14.8px;
+}

@@ -3,9 +3,10 @@ import React, { Component } from 'react';
 import SearchPanel from '../search-panel';
 import SpaceCards from '../space-cards';
 import AlertErr from '../alert-err';
+import Pagin from '../pagin';
 import { GenresMoviesProvider } from '../genres-movies-context';
 
-import { Alert, Pagination, Tabs } from 'antd';
+import { Alert, Tabs } from 'antd';
 
 import {tmbdService} from '../../services/tmbd-service';
 
@@ -91,27 +92,30 @@ export default class App extends Component {
 	}
 
 	onError = (err) => {
-		if (err.message === '422') {
-			this.setState(({ unprocessableEntity, loading }) => {
-				return {
-					unprocessableEntity: true,
-					loading: false
-				}
-			})
-		} else if (err.message === 'Failed to fetch') {
-			this.setState(({ disconnected, loading }) => {
-				return {
-					disconnected: true,
-					loading: false
-				}
-			})
-		} else {
-			this.setState(({ error, loading }) => {
-				return {
-					error: true,
-					loading: false
-				}
-			})
+		switch(err.message) {
+			case '422':
+				this.setState(({ unprocessableEntity, loading }) => {
+					return {
+						unprocessableEntity: true,
+						loading: false
+					}
+				});
+				break;
+			case 'Failed to fetch':
+				this.setState(({ disconnected, loading }) => {
+					return {
+						disconnected: true,
+						loading: false
+					}
+				});
+				break;
+			default:
+				this.setState(({ error, loading }) => {
+					return {
+						error: true,
+						loading: false
+					}
+				});
 		}
 	}
 
@@ -135,13 +139,25 @@ export default class App extends Component {
 	}
 
 	getRateMovies() {
-		const obj = localStorage.getItem('rate');
-		let objPars = JSON.parse(obj);
-		objPars = objPars === null ? {} : objPars;
-		const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
-		const getRate = new Map(arrPars);
-		for (let [ id, value ] of getRate) {
-			tmbdService.setRateMovie(id, value, this.state.sessionId);
+		let objPars;
+		try {
+			const obj = localStorage.getItem('rate');
+			objPars = JSON.parse(obj);
+		} catch(err) {
+			if (err instanceof SyntaxError) {
+				objPars = null;
+				alert("JSON syntax error: " + err.message + ". Movies data that has been rated is lost");
+			} else {
+				throw err;
+			}
+		}
+		finally {
+			objPars = objPars === null ? {} : objPars;
+			const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
+			const getRate = new Map(arrPars);
+			for (let [ id, value ] of getRate) {
+				tmbdService.setRateMovie(id, value, this.state.sessionId);
+			}
 		}
 	}
 	
@@ -183,19 +199,13 @@ export default class App extends Component {
 		const nothingFoundMessage = moviesData.length === 0  && !unprocessableEntity ? 
 			<Alert message="Movie not found" type="info" showIcon /> : null;
 		const pagination = error || unprocessableEntity || disconnected ? null : <Pagin propsState={this.state} change={this.onChangePage} />;
-
-		const tabsStyle = {
-			width: '110px',
-			margin: 'auto'
-		}
 		
 		return (
 			<div>
 				<GenresMoviesProvider value={this.state.genresData}>
 					<Tabs activeKey={this.state.activeKey}
 						centered
-						onChange={this.selectionTab}
-						tabBarStyle={tabsStyle}>
+						onChange={this.selectionTab}>
 						<TabPane tab="Search" key="1">
 							<SearchPanel
 								changeNewMovies={this.addNewMovies}
@@ -219,20 +229,4 @@ export default class App extends Component {
 			</div>
 		);
 	}
-}
-
-const Pagin = (props) => {
-	const { propsState, change } = props;
-	const { totalResults, currentPage } = propsState;
-	return (
-		<Pagination
-			size="small"
-			total={totalResults}
-			current={currentPage}
-			pageSize={20}
-			hideOnSinglePage={true}
-			onChange={change}
-			showSizeChanger={false}
-		/>
-	)
 }

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Card, Image, Rate, Badge } from 'antd';
 import 'antd/dist/antd.css';
@@ -14,30 +14,30 @@ export default function CardItem(props) {
 		return subString.substr(0, subString.lastIndexOf(' ')) + " ...";
 	};
 	
+	let [resultDate, setResultDate] = useState(null);
+	let [color, setColor] = useState(null);
+
 	const { titleItem, dateItem, genreItem, overviewItem, voteItem, urlItem, onChangeValueItem, valueItem } = props;
-		
-	let resultDate = useRef(null);
-	let color = useRef(null);
 	
 	useEffect(() => {
-		if (dateItem === '' || dateItem === undefined) resultDate.current = '';
+		if (dateItem === '' || dateItem === undefined) setResultDate('');
 		else {
 			let yr = new Date(dateItem).getFullYear();
 			let mn = (new Date(dateItem).getMonth());
 			let dt = new Date(dateItem).getDate();
-			resultDate.current = format(new Date(yr, mn, dt), "MMMM d, yyyy");
+			setResultDate(format(new Date(yr, mn, dt), "MMMM d, yyyy"));
 		}
 	}, [dateItem]);
 	
 	useEffect(() => {
-		if (0 <= voteItem && voteItem < 3) color.current = '#E90000';
-		else if (3 <= voteItem && voteItem < 5) color.current = '#E97E00';
-		else if (5 <= voteItem && voteItem < 7) color.current = '#E9D100';
-		else if (7 <= voteItem) color.current = '#66E900';
+		if (0 <= voteItem && voteItem < 3) setColor('#E90000');
+		else if (3 <= voteItem && voteItem < 5) setColor('#E97E00');
+		else if (5 <= voteItem && voteItem < 7) setColor('#E9D100');
+		else if (7 <= voteItem) setColor('#66E900');
 	}, [voteItem]);
 	
 	const root = document.querySelector(':root');
-	root.style.setProperty('--badge-color', color.current);
+	root.style.setProperty('--badge-color', color);
 
 	const elements = genreItem.map((item, i) => {
 		return (
@@ -64,7 +64,7 @@ export default function CardItem(props) {
 					showZero
 				/>
 			</h1>
-			<div className="card__date">{resultDate.current}</div>
+			<div className="card__date">{resultDate}</div>
 			<ul className="card__genre-box">{elements}</ul>
 			<p>{truncate(overviewItem, 180)}</p>
 			<Rate allowHalf

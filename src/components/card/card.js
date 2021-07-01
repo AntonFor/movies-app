@@ -30,14 +30,11 @@ export default function CardItem(props) {
 	}, [dateItem]);
 	
 	useEffect(() => {
-		if (0 <= voteItem && voteItem < 3) setColor('#E90000');
-		else if (3 <= voteItem && voteItem < 5) setColor('#E97E00');
-		else if (5 <= voteItem && voteItem < 7) setColor('#E9D100');
-		else if (7 <= voteItem) setColor('#66E900');
+		if (0 <= voteItem && voteItem < 3) setColor('card__badge-red');
+		else if (3 <= voteItem && voteItem < 5) setColor('card__badge-orange');
+		else if (5 <= voteItem && voteItem < 7) setColor('card__badge-yellow');
+		else if (7 <= voteItem) setColor('card__badge-green');
 	}, [voteItem]);
-	
-	const root = document.querySelector(':root');
-	root.style.setProperty('--badge-color', color);
 
 	const elements = genreItem.map((item, i) => {
 		return (
@@ -59,7 +56,7 @@ export default function CardItem(props) {
 			style={{ width: 450 }}>
 			<h1 className="card__title">
 				{titleItem}
-				<Badge
+				<Badge className={color}
 					count={voteItem}
 					showZero
 				/>

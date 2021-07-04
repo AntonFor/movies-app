@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import CardItem from '../card';
 import Spinner from '../spinner';
 import { GenresMoviesConsumer } from '../genres-movies-context';
+import getGenre from '../get-genre';
+import getUrlPoster from '../get-url-poster';
 
 import { Space } from 'antd';
 import 'antd/dist/antd.css';
@@ -56,16 +58,6 @@ export default class SpaceCards extends Component {
 		})
 	}
 
-	getGenre(genresData, genre) {
-		return genre.map(genre => {
-			return genresData.find(item => item.id === genre).name;
-		});
-	}
-
-	getUrlPoster(poster) {
-		return `https://image.tmdb.org/t/p/w300/${poster}`;
-	}
-
 	onChangeValue = (value, id, sessionId) => {
 		tmbdService.setRateMovie(id, value, sessionId);
 		this.setStateRateMovies(id, value);
@@ -99,10 +91,10 @@ export default class SpaceCards extends Component {
 											key={id}
 											titleItem={title}
 											dateItem={release_date}
-											genreItem={this.getGenre(genresData, genre_ids)}
+											genreItem={getGenre(genresData, genre_ids)}
 											overviewItem={overview}
 											voteItem={vote_average}
-											urlItem={this.getUrlPoster(poster_path)}
+											urlItem={getUrlPoster(poster_path)}
 											valueItem={this.state.rateMovies.get(id)}
 											onChangeValueItem={(value) => this.onChangeValue(value, id, sessionId)}
 										/>

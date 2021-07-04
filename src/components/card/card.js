@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import truncate from '../truncate';
+
 import { Card, Image, Rate, Badge } from 'antd';
 import 'antd/dist/antd.css';
 
@@ -8,12 +10,6 @@ import { format } from 'date-fns';
 import './card.css';
 
 export default function CardItem(props) {
-	const truncate = (str, n) => {
-		if (str.length <= n) return str;
-		let subString = str.substr(0, n-1);
-		return subString.substr(0, subString.lastIndexOf(' ')) + " ...";
-	};
-	
 	let [resultDate, setResultDate] = useState(null);
 	let [color, setColor] = useState(null);
 

@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import CardItem from '../card';
 import Spinner from '../spinner';
 import { GenresMoviesConsumer } from '../genres-movies-context';
-import getGenre from '../get-genre';
-import getUrlPoster from '../get-url-poster';
+import { getGenre } from '../../utilities/utilities';
+import { getUrlPoster } from '../../utilities/utilities';
 
 import { Space } from 'antd';
 import 'antd/dist/antd.css';

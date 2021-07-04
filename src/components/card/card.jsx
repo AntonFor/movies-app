@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import truncate from '../truncate';
+import { truncate } from '../../utilities/utilities';
 
 import { Card, Image, Rate, Badge } from 'antd';
 import 'antd/dist/antd.css';

@@ -1,3 +1,3 @@
-import SpaceCards from './space-cards';
+import SpaceCards from './space-cards.jsx';
 
 export default SpaceCards;

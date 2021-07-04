@@ -1,3 +1,3 @@
-import CardItem from './card';
+import CardItem from './card.jsx';
 
 export default CardItem;

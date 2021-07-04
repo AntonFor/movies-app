@@ -1,3 +1,3 @@
-import AlertErr from './alert-err';
+import AlertErr from './alert-err.jsx';
 
 export default AlertErr;

@@ -1,3 +1,3 @@
-import Pagin from './pagin';
+import Pagin from './pagin.jsx';
 
 export default Pagin;

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import './search-panel.css';
 
@@ -15,6 +16,16 @@ const SearchPanel = (props) => {
 			/>
 		</div>
 	)
+}
+
+SearchPanel.defaultProps = {
+	changeNewMovies: () => {},
+	inputValue: '',
+}
+
+SearchPanel.propTypes = {
+	changeNewMovies: PropTypes.func,
+	inputValue: PropTypes.string,
 }
 
 export default SearchPanel;

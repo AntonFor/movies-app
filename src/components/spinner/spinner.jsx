@@ -4,12 +4,10 @@ import { Spin } from 'antd';
 
 import './spinner.css';
 
-const Spinner = () => {
-	return (
+const Spinner = () => (
 		<div className="example">
-			<Spin size={'large'} />
+			<Spin size="large" />
 		</div>
 	);
-};
 
 export default Spinner;

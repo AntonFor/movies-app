@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Alert } from 'antd';
 
@@ -14,6 +15,14 @@ const AlertErr = (props) => {
       showIcon
     />
 	)
+}
+
+AlertErr.defaultProps = {
+	message: '',
+}
+
+AlertErr.propTypes = {
+	message: PropTypes.string,
 }
 
 export default AlertErr;

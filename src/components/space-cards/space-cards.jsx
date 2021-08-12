@@ -1,15 +1,18 @@
+/* eslint-disable no-unsafe-finally */
+/* eslint-disable no-alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
+import { Space } from 'antd';
 import CardItem from '../card';
 import Spinner from '../spinner';
 import { GenresMoviesConsumer } from '../genres-movies-context';
-import { getGenre } from '../../utilities/utilities';
-import { getUrlPoster } from '../../utilities/utilities';
+import { getGenre , getUrlPoster } from '../../utilities/utilities';
 
-import { Space } from 'antd';
+
 import 'antd/dist/antd.css';
 
-import {tmbdService} from '../../services/tmbd-service';
+import tmbdService from '../../services/tmbd-service';
 
 import './space-cards.css';
 
@@ -19,6 +22,10 @@ export default class SpaceCards extends Component {
 		this.state = {
 			rateMovies: new Map()
 		}
+	}
+
+	componentDidMount() {
+		this.setRate();
 	}
 
 	setStateRateMovies(id, value) {
@@ -34,7 +41,7 @@ export default class SpaceCards extends Component {
 	}
 
 	setRate() {
-		this.setState(({ rateMovies }) => {
+		this.setState(() => {
 			let objPars;
 			try {
 				const obj = localStorage.getItem('rate');
@@ -42,7 +49,7 @@ export default class SpaceCards extends Component {
 			} catch(err) {
 				if (err instanceof SyntaxError) {
 					objPars = null;
-					alert("JSON syntax error: " + err.message + ". Movies data that has been rated is lost");
+					alert(`JSON syntax error: ${  err.message  }. Movies data that has been rated is lost`);
 				} else {
 					throw err;
 				}
@@ -63,48 +70,64 @@ export default class SpaceCards extends Component {
 		this.setStateRateMovies(id, value);
 	}
 
-	componentDidMount() {
-		this.setRate();
-	}
-
 	render() {
 		const { movies } = this.props;
 		const { moviesData, loading, sessionId } = movies;
+		const { rateMovies } = this.state;
 
 		return (
 			<GenresMoviesConsumer>
 				{
-					(genresData) => {
-						return (
-							<Space size={'large'}
-								wrap={true}
+					(genresData) => (
+							<Space size="large"
+								wrap
 								className="space">
-								{moviesData.map((_, index) => {
+								{moviesData.map((item, index) => {
 									if (loading) {
 										return (
-											<Spinner key={index} />
+											<Spinner key={item} />
 										)
 									}
-									const { id = index, poster_path, title, release_date, genre_ids, overview, vote_average } = moviesData[index];
+									const { id = index, poster_path: posterPath, title, release_date: releaseDate, genre_ids: genreIds, overview, vote_average: voteAverage } = moviesData[index];
 									return (
 										<CardItem
 											key={id}
 											titleItem={title}
-											dateItem={release_date}
-											genreItem={getGenre(genresData, genre_ids)}
+											dateItem={releaseDate}
+											genreItem={getGenre(genresData, genreIds)}
 											overviewItem={overview}
-											voteItem={vote_average}
-											urlItem={getUrlPoster(poster_path)}
-											valueItem={this.state.rateMovies.get(id)}
+											voteItem={voteAverage}
+											urlItem={getUrlPoster(posterPath)}
+											valueItem={rateMovies.get(id)}
 											onChangeValueItem={(value) => this.onChangeValue(value, id, sessionId)}
 										/>
 									)
 								})}
 							</Space>
 						)
-					}
 				}
 			</GenresMoviesConsumer>
 		);
 	}
+}
+
+SpaceCards.defaultProps = {
+	movies: {},
+}
+
+SpaceCards.propTypes = {
+	movies: PropTypes.shape({
+    moviesData: PropTypes.arrayOf(PropTypes.object),
+		loading: PropTypes.bool,
+		error: PropTypes.bool,
+		unprocessableEntity: PropTypes.bool,
+		disconnected: PropTypes.bool,
+		searchMovieName: PropTypes.string,
+		totalPages: PropTypes.number,
+		currentPage: PropTypes.number,
+		totalResults: PropTypes.number,
+		sessionId: PropTypes.string,
+		activeKey: PropTypes.string,
+		genresData: PropTypes.arrayOf(PropTypes.object)
+  }),
 }

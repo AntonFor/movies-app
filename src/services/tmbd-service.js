@@ -1,3 +1,4 @@
+/* eslint-disable no-return-await */
 class TmbdService {
 	async getResource(url, obj = null) {
 		const response = await fetch(url, obj);
@@ -7,19 +8,19 @@ class TmbdService {
 		return await response.json();
 	}
 
-	api_key = 'd619adfb47ad0346fcb305088c087ffc';
+	apiKey = 'd619adfb47ad0346fcb305088c087ffc';
 
 	getMovies(movie, page) {
-		return this.getResource(`https://api.themoviedb.org/3/search/movie?api_key=${this.api_key}&query=${movie}&page=${page}`);
+		return this.getResource(`https://api.themoviedb.org/3/search/movie?api_key=${this.apiKey}&query=${movie}&page=${page}`);
 	}
 
 	getSessionId() {
-		return this.getResource(`https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${this.api_key}`);
+		return this.getResource(`https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${this.apiKey}`);
 	}
 
-	setRateMovie(movie_id, value, session) {
+	setRateMovie(movieId, value, session) {
 		const requestBody = {"value": value};
-		this.getResource(`https://api.themoviedb.org/3/movie/${movie_id}/rating?api_key=${this.api_key}&guest_session_id=${session}`, {
+		this.getResource(`https://api.themoviedb.org/3/movie/${movieId}/rating?api_key=${this.apiKey}&guest_session_id=${session}`, {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json;charset=utf-8'},
 			body: JSON.stringify(requestBody)
@@ -27,12 +28,14 @@ class TmbdService {
 	}
 
 	getRateMovies(session) {
-		return this.getResource(`https://api.themoviedb.org/3/guest_session/${session}/rated/movies?api_key=${this.api_key}`);
+		return this.getResource(`https://api.themoviedb.org/3/guest_session/${session}/rated/movies?api_key=${this.apiKey}`);
 	}
 
 	getGenresMovies() {
-		return this.getResource(`https://api.themoviedb.org/3/genre/movie/list?api_key=${this.api_key}`);
+		return this.getResource(`https://api.themoviedb.org/3/genre/movie/list?api_key=${this.apiKey}`);
 	}
 }
 
-export const tmbdService = new TmbdService();
+const tmbdService = new TmbdService();
+
+export default tmbdService;

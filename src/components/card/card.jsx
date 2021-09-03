@@ -6,7 +6,7 @@ import 'antd/dist/antd.css';
 
 import { format } from 'date-fns';
 
-import { truncate } from '../../utilities/utilities';
+import { truncate, settingColor } from '../../utilities/utilities';
 
 import './card.css';
 
@@ -27,10 +27,7 @@ export default function CardItem(props) {
 	}, [dateItem]);
 	
 	useEffect(() => {
-		if (voteItem >= 0 && voteItem < 3) setColor('card__badge-red');
-		else if (voteItem >= 3 && voteItem < 5) setColor('card__badge-orange');
-		else if (voteItem >= 5 && voteItem < 7) setColor('card__badge-yellow');
-		else if (voteItem >= 7) setColor('card__badge-green');
+		settingColor(voteItem, setColor);
 	}, [voteItem]);
 
 	const elements = genreItem.map((item) => (

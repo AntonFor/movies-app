@@ -8,6 +8,7 @@ import SpaceCards from '../space-cards';
 import AlertErr from '../alert-err';
 import Pagin from '../pagin';
 import { GenresMoviesProvider } from '../genres-movies-context';
+import stateDefault from '../../constants/constants';
 
 import tmbdService from '../../services/tmbd-service';
 
@@ -22,20 +23,7 @@ export default class App extends Component {
 
 	constructor() {
 		super();
-		this.state = {
-			moviesData: [],
-			loading: true,
-			error: false,
-			unprocessableEntity: false,
-			disconnected: false,
-			searchMovieName: '',
-			totalPages: 1,
-			currentPage: 1,
-			totalResults: null,
-			sessionId: null,
-			activeKey: '1',
-			genresData: null
-		};
+		this.state = stateDefault;
 	}
 
 	componentDidMount() {

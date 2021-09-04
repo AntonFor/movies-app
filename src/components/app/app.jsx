@@ -7,7 +7,7 @@ import SearchPanel from '../search-panel';
 import SpaceCards from '../space-cards';
 import AlertErr from '../alert-err';
 import Pagin from '../pagin';
-import { GenresMoviesProvider } from '../genres-movies-context';
+import { MoviesProvider } from '../movies-context';
 import stateDefault from '../../constants/constants';
 
 import tmbdService from '../../services/tmbd-service';
@@ -64,7 +64,7 @@ export default class App extends Component {
 			}
 		}
 	}
-
+	
 	selectionTab = (currentKey) => {
 		this.setState(() => {
 			if (currentKey === '1') {
@@ -177,7 +177,7 @@ export default class App extends Component {
 		
 		return (
 			<div>
-				<GenresMoviesProvider value={genresData}>
+				<MoviesProvider value={genresData}>
 					<Tabs activeKey={activeKey}
 						centered
 						onChange={this.selectionTab}>
@@ -200,7 +200,7 @@ export default class App extends Component {
 							{pagination}
 						</TabPane>
 					</Tabs>
-				</GenresMoviesProvider>
+				</MoviesProvider>
 			</div>
 		);
 	}

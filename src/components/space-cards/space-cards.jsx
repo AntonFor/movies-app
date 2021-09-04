@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Space } from 'antd';
 import CardItem from '../card';
 import Spinner from '../spinner';
-import { GenresMoviesConsumer } from '../genres-movies-context';
+import { MoviesConsumer } from '../movies-context';
 import { getGenre , getUrlPoster } from '../../utilities/utilities';
 
 
@@ -58,6 +58,7 @@ export default class SpaceCards extends Component {
 				objPars = objPars === null ? {} : objPars;
 				const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
 				const getRate = new Map(arrPars);
+				console.log(getRate, 'state');
 				return {
 					rateMovies: getRate
 				}
@@ -76,7 +77,7 @@ export default class SpaceCards extends Component {
 		const { rateMovies } = this.state;
 
 		return (
-			<GenresMoviesConsumer>
+			<MoviesConsumer>
 				{
 					(genresData) => (
 							<Space size="large"
@@ -88,7 +89,7 @@ export default class SpaceCards extends Component {
 											<Spinner key={item} />
 										)
 									}
-									const { id = index, poster_path: posterPath, title, release_date: releaseDate, genre_ids: genreIds, overview, vote_average: voteAverage } = moviesData[index];
+									const { id, poster_path: posterPath, title, release_date: releaseDate, genre_ids: genreIds, overview, vote_average: voteAverage } = moviesData[index];
 									return (
 										<CardItem
 											key={id}
@@ -106,7 +107,7 @@ export default class SpaceCards extends Component {
 							</Space>
 						)
 				}
-			</GenresMoviesConsumer>
+			</MoviesConsumer>
 		);
 	}
 }

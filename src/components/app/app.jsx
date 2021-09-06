@@ -66,28 +66,6 @@ export default class App extends Component {
 			}))
 	}
 
-	onError = (err) => {
-		switch(err.message) {
-			case '422':
-				this.setState(() => ({
-						unprocessableEntity: true,
-						loading: false
-					}));
-				break;
-			case 'Failed to fetch':
-				this.setState(() => ({
-						disconnected: true,
-						loading: false
-					}));
-				break;
-			default:
-				this.setState(() => ({
-						error: true,
-						loading: false
-					}));
-		}
-	}
-
 	render() {
 		const { error, unprocessableEntity, disconnected, moviesData, genresData, activeKey, searchMovieName } = this.state;
 		const spaceCards = !error && !unprocessableEntity && !disconnected ? <SpaceCards movies={this.state} /> : null;

@@ -22,6 +22,28 @@ export function settingColor(value, installer) {
 	else if (value >= 7) installer('card__badge-green');
 }
 
+function onError(err) {
+	switch(err.message) {
+		case '422':
+			this.setState(() => ({
+					unprocessableEntity: true,
+					loading: false
+				}));
+			break;
+		case 'Failed to fetch':
+			this.setState(() => ({
+					disconnected: true,
+					loading: false
+				}));
+			break;
+		default:
+			this.setState(() => ({
+					error: true,
+					loading: false
+				}));
+	}
+}
+
 export function getRateMovies() {
 	const { sessionId } = this.state;
 	let objPars;
@@ -59,7 +81,7 @@ export function updateRateMovies() {
 					totalPages: body.total_pages,
 					totalResults: body.total_results, 
 				}))
-		}).catch(this.onError);
+		}).catch((err) => onError.call(this, err));
 }
 
 export function updateMovies() {
@@ -75,7 +97,7 @@ export function updateMovies() {
 					totalPages: body.total_pages,
 					totalResults: body.total_results, 
 				}))
-		}).catch(this.onError);
+		}).catch((err) => onError.call(this, err));
 }
 
 export function updateSessionId() {
@@ -84,7 +106,7 @@ export function updateSessionId() {
 			this.setState(() => ({
 					sessionId: body.guest_session_id
 				}))
-		}).catch(this.onError);
+		}).catch((err) => onError.call(this, err));
 }
 
 export function updateGenresMovies() {

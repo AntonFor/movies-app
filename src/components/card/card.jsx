@@ -15,7 +15,6 @@ export default function CardItem(props) {
 	const [color, setColor] = useState(null);
 
 	const { titleItem, dateItem, genreItem, overviewItem, voteItem, urlItem, onChangeValueItem, valueItem } = props;
-	console.log(valueItem);
 	
 	useEffect(() => {
 		if (dateItem === '' || dateItem === undefined) setResultDate('');

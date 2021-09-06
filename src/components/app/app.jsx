@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unused-state */
-/* eslint-disable no-alert */
 import React, { Component } from 'react';
 
 import { Alert, Tabs } from 'antd';
@@ -9,8 +8,7 @@ import AlertErr from '../alert-err';
 import Pagin from '../pagin';
 import { MoviesProvider } from '../movies-context';
 import stateDefault from '../../constants/constants';
-
-import tmbdService from '../../services/tmbd-service';
+import { getRateMovies, updateRateMovies, updateMovies, updateSessionId, updateGenresMovies } from '../../utilities/utilities'; 
 
 import './app.css';
 
@@ -19,7 +17,7 @@ const debounce = require('lodash.debounce');
 const { TabPane } = Tabs;
 
 export default class App extends Component {
-	updateMoviesDebounced = debounce(this.updateMovies, 2000);
+	updateMoviesDebounced = debounce(updateMovies, 2000);
 
 	constructor() {
 		super();
@@ -27,9 +25,9 @@ export default class App extends Component {
 	}
 
 	componentDidMount() {
-		this.updateGenresMovies()
-		this.updateSessionId();
-		this.updateMovies();
+		updateGenresMovies.call(this)
+		updateSessionId.call(this);
+		updateMovies.call(this);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -37,41 +35,17 @@ export default class App extends Component {
 		if (searchMovieName !== prevState.searchMovieName) {
 			this.updateMoviesDebounced();
 		} else if (currentPage !== prevState.currentPage) {
-			this.updateMovies();
-		}
-	}
-
-	getRateMovies() {
-		const { sessionId } = this.state;
-		let objPars;
-		try {
-			const obj = localStorage.getItem('rate');
-			objPars = JSON.parse(obj);
-		} catch(err) {
-			if (err instanceof SyntaxError) {
-				objPars = null;
-				alert(`JSON syntax error: ${  err.message  }. Movies data that has been rated is lost`);
-			} else {
-				throw err;
-			}
-		}
-		finally {
-			objPars = objPars === null ? {} : objPars;
-			const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
-			const getRate = new Map(arrPars);
-			for (const [ id, value ] of getRate) {
-				tmbdService.setRateMovie(id, value, sessionId);
-			}
+			updateMovies.call(this);
 		}
 	}
 	
 	selectionTab = (currentKey) => {
 		this.setState(() => {
 			if (currentKey === '1') {
-				this.updateMovies();
+				updateMovies.call(this)
 			} else if (currentKey === '2') {
-				this.getRateMovies();
-				this.updateRateMovies();
+				getRateMovies.call(this);
+				updateRateMovies.call(this);
 			}
 			return {
 				activeKey: currentKey
@@ -112,56 +86,6 @@ export default class App extends Component {
 						loading: false
 					}));
 		}
-	}
-
-	updateRateMovies() {
-		const { sessionId } = this.state;
-		tmbdService.getRateMovies(sessionId)
-			.then((body) => {
-				this.setState(() => ({
-						moviesData: body.results,
-						loading: false,
-						error: false,
-						unprocessableEntity: false,
-						disconnected: false,
-						totalPages: body.total_pages,
-						totalResults: body.total_results, 
-					}))
-			}).catch(this.onError);
-	}
-
-	updateSessionId() {
-		tmbdService.getSessionId()
-			.then(body => {
-				this.setState(() => ({
-						sessionId: body.guest_session_id
-					}))
-			}).catch(this.onError);
-	}
-
-	updateMovies() {
-		const { searchMovieName, currentPage } = this.state;
-		tmbdService.getMovies(searchMovieName, currentPage)
-			.then((body) => {
-				this.setState(() => ({
-						moviesData: body.results,
-						loading: false,
-						error: false,
-						unprocessableEntity: false,
-						disconnected: false,
-						totalPages: body.total_pages,
-						totalResults: body.total_results, 
-					}))
-			}).catch(this.onError);
-	}
-
-	updateGenresMovies() {
-		tmbdService.getGenresMovies()
-			.then((body) => {
-				this.setState(() => ({
-						genresData: body.genres
-					}))
-			})
 	}
 
 	render() {

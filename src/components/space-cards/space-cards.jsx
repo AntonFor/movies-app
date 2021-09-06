@@ -58,7 +58,6 @@ export default class SpaceCards extends Component {
 				objPars = objPars === null ? {} : objPars;
 				const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
 				const getRate = new Map(arrPars);
-				console.log(getRate, 'state');
 				return {
 					rateMovies: getRate
 				}

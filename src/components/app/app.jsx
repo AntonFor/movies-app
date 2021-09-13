@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 
 import { Alert, Tabs } from 'antd';
@@ -8,7 +7,10 @@ import AlertErr from '../alert-err';
 import Pagin from '../pagin';
 import { MoviesProvider } from '../movies-context';
 import stateDefault from '../../constants/constants';
-import { getRateMovies, updateRateMovies, updateMovies, updateSessionId, updateGenresMovies } from '../../utilities/utilities'; 
+import { getRateMovies, updateRateMovies, updateMovies, updateSessionId, updateGenresMovies,
+	setStateRateMovies, setRate } from '../../utilities/utilities';
+
+import tmbdService from '../../services/tmbd-service';
 
 import './app.css';
 
@@ -28,6 +30,7 @@ export default class App extends Component {
 		updateGenresMovies.call(this)
 		updateSessionId.call(this);
 		updateMovies.call(this);
+		setRate.call(this);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -42,7 +45,7 @@ export default class App extends Component {
 	selectionTab = (currentKey) => {
 		this.setState(() => {
 			if (currentKey === '1') {
-				updateMovies.call(this)
+				updateMovies.call(this);
 			} else if (currentKey === '2') {
 				getRateMovies.call(this);
 				updateRateMovies.call(this);
@@ -66,9 +69,14 @@ export default class App extends Component {
 			}))
 	}
 
+	onChangeValue = (value, id, sessionId) => {
+		tmbdService.setRateMovie(id, value, sessionId);
+		setStateRateMovies.call(this, id, value);
+	}
+
 	render() {
 		const { error, unprocessableEntity, disconnected, moviesData, genresData, activeKey, searchMovieName } = this.state;
-		const spaceCards = !error && !unprocessableEntity && !disconnected ? <SpaceCards movies={this.state} /> : null;
+		const spaceCards = !error && !unprocessableEntity && !disconnected ? <SpaceCards movies={this.state} onChangeValue={this.onChangeValue} /> : null;
 		const errMessage = error ? <AlertErr message='Server is not available' /> : null;
 		const errDisconnected = disconnected ? <AlertErr message='Internet disconnected' /> : null;
 		const unprocessableEntityMessage = unprocessableEntity ? 

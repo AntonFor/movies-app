@@ -10,7 +10,8 @@ const stateDefault = {
 	totalResults: null,
 	sessionId: null,
 	activeKey: '1',
-	genresData: null
+	genresData: null,
+	rateMovies: new Map()
 }
 
 export default stateDefault;

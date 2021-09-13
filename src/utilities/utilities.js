@@ -117,3 +117,37 @@ export function updateGenresMovies() {
 				}))
 		})
 }
+
+export function setStateRateMovies(id, value) {
+	this.setState(({ rateMovies }) => {
+		const map = new Map(rateMovies.entries());
+		map.set(id, value);
+		const obj = Object.fromEntries(map);
+		localStorage.setItem('rate', JSON.stringify(obj));
+		return {
+			rateMovies: map
+		}
+	})
+}
+
+export function setRate() {
+	let objPars;
+	try {
+		const obj = localStorage.getItem('rate');
+		objPars = JSON.parse(obj);
+	} catch(err) {
+		if (err instanceof SyntaxError) {
+			objPars = null;
+			alert(`JSON syntax error: ${  err.message  }. Movies data that has been rated is lost`);
+		} else {
+			throw err;
+		}
+	} finally {
+		objPars = objPars === null ? {} : objPars;
+		const arrPars = Object.keys(objPars).map((key) => [Number(key), objPars[key]]);
+		const getRate = new Map(arrPars);
+		this.setState(() => ({
+			rateMovies: getRate
+		}))
+	}
+}

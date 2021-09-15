@@ -84,3 +84,7 @@ p {
 .ant-rate {
 	font-size: 14.8px;
 }
+
+div .ant-space-item {
+	margin-left: 0;
+}
